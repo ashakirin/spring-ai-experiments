@@ -57,7 +57,6 @@ public class TripReservationAiService {
                 .content()
                 .onErrorResume(TimeoutException.class, ex -> {
                     logger.warn("Stream timed out: {}", ex.getMessage());
-                    chatClient = chatClientBuilder.build();
                     return Flux.just("⚠️ LLM response timed out. Please try again.");
                 });
     }
