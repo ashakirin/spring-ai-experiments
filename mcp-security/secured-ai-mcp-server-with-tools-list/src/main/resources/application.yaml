@@ -1,0 +1,33 @@
+server:
+  port: ${PORT:8080}
+  servlet:
+    session:
+      persistent: true
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${ISSUER_URI:http://localhost:9000}
+      client:
+        registration:
+          authserver:
+            client-name: Spring Auth Server
+            client-id: "default-client"
+            client-secret: "default-secret"
+            scope:
+              - openid
+              - email
+        provider:
+          authserver:
+            issuer-uri: ${ISSUER_URI:http://localhost:9000}
+  ai:
+    mcp:
+      server:
+        protocol: stateless
+        name: appointment-server
+
+logging:
+  level:
+    org.springframework.security: TRACE
