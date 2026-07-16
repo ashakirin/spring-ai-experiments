@@ -62,7 +62,9 @@ public class ChatClientEvaluatorTest {
                 .build();
 
         ChatClient.Builder evaluationChatClient = ChatClient.builder(evaluationModel);
-        factCheckingEvaluator = new FactCheckingEvaluator(evaluationChatClient, FACT_CHECKING_PROMPT);
+        factCheckingEvaluator = FactCheckingEvaluator.builder(evaluationChatClient)
+                .evaluationPrompt(FACT_CHECKING_PROMPT)
+                .build();
         relevancyEvaluator = RelevancyEvaluator.builder()
                 .chatClientBuilder(evaluationChatClient)
                 .promptTemplate(new PromptTemplate(RELEVANCY_PROMPT))
@@ -162,7 +164,9 @@ public class ChatClientEvaluatorTest {
 
         // Test with FactCheckingEvaluator's likely prompt format
         System.out.println("Creating FactCheckingEvaluator with model: " + evaluationModel.getClass().getSimpleName());
-        FactCheckingEvaluator evaluator = new FactCheckingEvaluator(ChatClient.builder(evaluationModel), "\tEvaluate whether or not the following claim is supported by the provided document.\n\tRespond ONLY with 3 letters \"yes\" if the claim is supported, or 2 letters \"no\" if it is not.\n\tDocument: \\n {document}\\n\n\tClaim: \\n {claim}\n");
+        FactCheckingEvaluator evaluator = factCheckingEvaluator = FactCheckingEvaluator.builder(ChatClient.builder(evaluationModel))
+                .evaluationPrompt("\tEvaluate whether or not the following claim is supported by the provided document.\n\tRespond ONLY with 3 letters \"yes\" if the claim is supported, or 2 letters \"no\" if it is not.\n\tDocument: \\n {document}\\n\n\tClaim: \\n {claim}\n")
+                .build();
 
         System.out.println("Evaluating...");
         EvaluationResponse evaluationResponse = evaluator.evaluate(evaluationRequest);
