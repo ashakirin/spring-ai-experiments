@@ -2,7 +2,7 @@
 
 A Spring AI agent (Amazon Bedrock Converse + AgentCore memory) exposed over the
 [Agent Client Protocol (ACP)](https://agentclientprotocol.com/) so it can be driven by
-ACP-aware editors such as **Zed**.
+ACP-aware editors such as **IntelliJ Idea** or **Zed**.
 
 The conversational logic is unchanged from the original Spring AI app. ACP is added as a
 thin adapter layer:
@@ -107,6 +107,40 @@ java -jar target/spring-ai-acp-example-0.0.1-SNAPSHOT.jar --acp
 
 It now reads JSON-RPC from stdin and writes responses to stdout. Logs go to stderr and to
 `travel-acp-agent.log` (override with `ACP_LOG_FILE`).
+
+## Integrating with IntelliJ Idea
+
+IntelliJ Idea natively supports ACP agents as JetBrains is co-leading the developing of ACP protocol. You can connect your own ACP agent to IntelliJ IDE by configuring an access to it via `~/.jetbrains/acp.json` config file, where the agent run command, arguments, and environment variables should be defined in JSON format:
+
+```
+{
+  "agent_servers": {
+    "Travel Agent": {
+      "command": "java",
+      "args": [
+        "-jar",
+        "/absolute/path/to/spring-ai-acp-example/target/spring-ai-acp-example-0.0.1-SNAPSHOT.jar",
+        "--acp"
+      ],
+      "env": {
+        "AWS_PROFILE": "default"
+      }
+    },
+  }
+}
+```
+
+Then open the AI Chat in IntelliJ Idea, pick **Travel Agent** from the agent picker dropdown, and chat.
+IntelliJ Idea handles `initialize`, opens a `session/new`, and sends your messages as `session/prompt`;
+the streamed `agent_message_chunk` updates appear in the panel in real time.
+
+Tips:
+- Use an **absolute** path to the jar;
+- Credentials come from `~/.aws`. The jar already pins a profile via
+  `application.properties`; the `AWS_PROFILE` env entry above is optional and just lets you
+  override it per editor. The subprocess inherits your `HOME`, so `~/.aws` is found
+  automatically.
+- If startup fails, check `travel-acp-agent.log` and IntelliJ Idea's agent logs (Command search -> Get ACP Logs).
 
 ## Integrating with Zed
 
